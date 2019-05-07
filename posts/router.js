@@ -10,16 +10,30 @@ router.get("/", async (req, res) => {
 		res.status(200).json(posts);
 	} catch (error) {
 		res.status(500).json({
-			message: "Error retrieving the posts."
+			error: "Error retrieving the posts."
 		})
 	}
 })
+
+router.get("/:id", async (req, res) => {
+	try {
+		const post = await db.findById(req.params.id);
+		if (post) {
+			res.status(200).json(post);
+		}
+		if (!post) {
+			res.status(404).json({message: "The post with the specified ID does not exist"})
+		}
+	} catch (error) {
+		res.status(500).json({error: "The post information could not be retrieved."});
+	}
+});
 
 router.post("/", async (req, res) => {
 	const {title, contents} = req.body;
 	if (!title || !contents) {
 		res.status(400)
-			.json({errorMessage: "Please, provide title and contents for post."});
+			.json({errorMessage: "Please, provide title and contents for the post."});
 	}
 	try {
 		// is there a better way to structure this if within the try?
@@ -30,7 +44,7 @@ router.post("/", async (req, res) => {
 		}
 	} catch (error) {
 		res.status(500).json({
-			message: "Error adding the post"
+			error: "There was an error while saving the post to the database."
 		});
 	}
 });
